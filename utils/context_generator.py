@@ -86,6 +86,11 @@ email_reasons = [
     "Software installation request"
 ]
 
+departments = [
+        "IT Department", "Information Security", "Human Resources", "Finance", 
+        "Operations", "Technical Support", "Customer Service", "Marketing"
+    ]
+
 
 class CONTEXT:
     def __init__(self):
@@ -100,3 +105,9 @@ class CONTEXT:
 
 def generate_context():
     return CONTEXT()
+
+def generate_job_title():
+    return r.choice(positions)
+
+def generate_department():
+    return r.choice(departments)
