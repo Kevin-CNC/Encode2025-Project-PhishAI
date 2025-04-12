@@ -7,16 +7,32 @@
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
     <body class="font-sans p-6">
-    <section class="max-w-xl mx-auto text-center space-y-6">
-        <h1 id="greeting-label" class="text-3xl font-bold text-blue-800">Welcome back!</h1>
-        <p id="highscore-label" class="text-xl">Your highest score: <span class="font-semibold text-blue-600">92</span></p>
+    <section class="max-w-xl mx-auto space-y-6">
+        <header class="bg-white rounded-xl shadow-md p-6">
+            <!-- User Profile Section -->
+            <section class="flex items-center">
+                <section class="relative">
+                    <img id="user-profile-picture" src="/static/img/default-avatar.png" alt="User Profile" 
+                         class="w-16 h-16 rounded-full object-cover border-2 border-blue-600">
+                    <span id="chain-badge" class="absolute -bottom-1 -right-1 bg-gray-200 text-xs px-2 py-1 rounded-full"></span>
+                </section>
+                <section class="ml-4">
+                    <h1 id="greeting-label" class="text-3xl font-bold text-blue-800">Welcome back!</h1>
+                    <p id="wallet-address" class="text-sm text-gray-500 truncate max-w-xs"></p>
+                </section>
+            </section>
+        </header>
 
-        <button id="startButton" class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700" >Start New Quiz</button>
+        <section class="bg-white rounded-xl shadow-md p-6 text-center">
+            <p id="highscore-label" class="text-xl mb-6">Your highest score: <span class="font-semibold text-blue-600">92</span></p>
 
-        <section id="confirmBox" class="hidden mt-6 bg-white shadow-lg p-6 rounded-xl">
-        <p class="mb-4 text-gray-700">Are you sure you want to start a new quiz?</p>
-        <button id="startQuizButton" class="bg-green-500 text-white px-4 py-2 mr-2 rounded-md">Yes</button>
-        <button id="regretButton" class="bg-gray-400 text-white px-4 py-2 rounded-md">Cancel</button>
+            <button id="startButton" class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700">Start New Quiz</button>
+
+            <section id="confirmBox" class="hidden mt-6 bg-white shadow-lg p-6 rounded-xl">
+                <p class="mb-4 text-gray-700">Are you sure you want to start a new quiz?</p>
+                <button id="startQuizButton" class="bg-green-500 text-white px-4 py-2 mr-2 rounded-md">Yes</button>
+                <button id="regretButton" class="bg-gray-400 text-white px-4 py-2 rounded-md">Cancel</button>
+            </section>
         </section>
     </section>
 

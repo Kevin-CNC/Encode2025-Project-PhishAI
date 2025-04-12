@@ -10,16 +10,16 @@ import re
 import random as r
 import os
 from dotenv import load_dotenv
-from utils import context_generator
+from utils import context_generator, blockchain_stuff
 
 load_dotenv() # Load environment variables
 
 app = FastAPI()
 api_key = os.getenv("HUGGING_FACE_TOKEN")
-# ------------------ Static Mount ------------------
+##################### FASTAPI MOUNTS ###################################
 app.mount("/pages", StaticFiles(directory="pages"), name="pages")
 app.mount("/static", StaticFiles(directory="static"), name="static")
-# ------------------ Models ------------------
+########################################################################
 
 class EmailGenerated(BaseModel):
     id: str
@@ -30,22 +30,26 @@ class UserSubmission(BaseModel):
     email_id: str
     is_phishing_guess: bool
     highlights: list[str]
-    session_id: str  # <-- NEW: Pass session to identify
+    session_id: str
 
 class Score(BaseModel):
     correct: bool
     points_earned: int
     feedback: str
+    
+class EndGame(BaseModel):
+    session_id: str
+    errors: int
+    
 
-# ------------------ State ------------------
+##################### STATES FOR APPLICATION ############################
 EMAILS = {}
-LEADERBOARD = {}
 USER_SESSIONS = {}
 USER_SCORES = {}
-USER_PROGRESS = {}  # <-- NEW: Tracks question numbers per session
+USER_PROGRESS = {}  
 
-# ------------------ Pages ------------------
 
+###################### PAGE LOGIC ####################################
 @app.get("/", response_class=FileResponse)
 def serve_home():
     return FileResponse("pages/index.html")
@@ -64,7 +68,7 @@ def serve_quiz(session_id: str = ""):
     
     return FileResponse("pages/quiz-page.html")
 
-# ------------------ Game Logic ------------------
+###################### GAME LOGIC ####################################
 @app.post("/generate_email", response_model=EmailGenerated)
 def generate_email():    
     API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1"  
@@ -74,6 +78,9 @@ def generate_email():
     
     chance = r.randint(0,1)
     fraud = False
+    
+    if chance == 1:
+        fraud = True
 
     # Create a list of random names for sender and recipient
     first_names = ["Alex", "Sam", "Jordan", "Taylor", "Casey", "Morgan", "Jamie", "Riley", "Quinn", "Avery"]
@@ -121,7 +128,7 @@ def generate_email():
     ]
     sender_department = r.choice(departments)
     
-    # Example email to mimic
+    # Example email
     example_email = """From: Sam Smith <sam.smith@microsynth.tech>
 To: Casey Johnson <casey.johnson@microsynth.tech>
 Date: Thursday, April 10, 2025
@@ -147,8 +154,9 @@ Network Engineer
 Human Resources
 MicroSynth
 555-1234"""
-    
-    # Create fallback templates for both legitimate and phishing emails
+
+
+######### PRE-MADE EMAILS IN CASE API CALL FAILS, READY TO BE USED TO THE USER! ################################################################
     legitimate_template = f"""From: {sender_first_name} {sender_last_name} <{sender_first_name.lower()}.{sender_last_name.lower()}@{real_domain}>
 To: {recipient_first_name} {recipient_last_name} <{recipient_first_name.lower()}.{recipient_last_name.lower()}@{company_domain}>
 Date: {email_date}
@@ -171,18 +179,20 @@ Best regards,
 {ctx.company_name}
 555-{r.randint(1000, 9999)}"""
 
+
+    # Phishing email template
     phishing_template = f"""From: {sender_first_name} {sender_last_name} <{sender_first_name.lower()}.{sender_last_name.lower()}@{phishing_domain}>
 To: {recipient_first_name} {recipient_last_name} <{recipient_first_name.lower()}.{recipient_last_name.lower()}@{company_domain}>
 Date: {email_date}
-Subject: URGENT: Action Required - {ctx.reason_for_contact}
+Subject: {r.choice(["","URGENT:"])} Action Required - {ctx.reason_for_contact}
 
 Dear {recipient_first_name},
 
-I hope this email finds you well. I'm contacting you regarding an urgent matter concerning {ctx.reason_for_contact} that requires your immediate attention.
+I hope this email finds you well. I'm {r.choice(["contacting", "contating"])} you regarding an urgent matter concerning {ctx.reason_for_contact} that requires your {r.choice(["immediate", "imediate"])} attention.
 
 Due to recent security concerns, we need all {ctx.position}s to verify their account information as soon as possible. Please click on the link below to confirm your details:
 
-https://{phishing_domain}/account/verify?id={r.randint(10000, 99999)}
+https://{phishing_domain + (r.choice(["x","/accounts"]))}/verify?id={r.randint(10000, 99999)}
 
 This is an urgent matter and failure to verify within 24 hours may result in temporary suspension of your access.
 
@@ -194,7 +204,10 @@ Regards,
 {sender_department}
 {ctx.company_name}
 555-{r.randint(1000, 9999)}"""
-    
+
+#####################################################################################
+###################### AI PROMPTS FOR EMAILS ########################################
+
     if chance == 0: # Write a non-fraudulent email
         prompt = f"""<instruction>
         Write a professional email from {sender_first_name} {sender_last_name} at {ctx.company_name} to {recipient_first_name} {recipient_last_name}, a {ctx.position} about {ctx.reason_for_contact}.
@@ -276,7 +289,11 @@ Regards,
         else:
             print(f"Unexpected response format: {response}")
             # Use fallback template if we can't parse the response
-            generated_email = legitimate_template if not fraud else phishing_template
+            generated_email = str()
+            if fraud:
+                generated_email = phishing_template
+            else:
+                generated_email = legitimate_template
             
         # Clean up the response to ensure it only contains the email
         # Remove any instruction tags or explanations that might have been included
@@ -338,7 +355,17 @@ Regards,
     except Exception as e:
         print(f"Error generating email: {e}")
         # Use fallback template in case of any exception
-        fallback_email = legitimate_template if not fraud else phishing_template
+        fallback_email = str()
+        
+        if chance == 1:
+            fraud = True
+
+        
+        if fraud:
+            fallback_email = phishing_template
+        else:
+            fallback_email = legitimate_template
+        
         generated_id = str(uuid.uuid4())
         EMAILS[generated_id] = {"content": fallback_email, "is_phishing": fraud}
         
@@ -348,7 +375,7 @@ Regards,
 
 @app.post("/submit_answer", response_model=Score)
 def submit_answer(sub: UserSubmission):
-    # === Answer Processing Logic ===
+    # ANSWER PROCESS LOGIC
     email = EMAILS.get(sub.email_id)
     if not email:
         raise HTTPException(status_code=404, detail="Email not found")
@@ -357,17 +384,13 @@ def submit_answer(sub: UserSubmission):
     highlight_score = len(sub.highlights) * 5 if email['is_phishing'] else 0
     points = (10 if correct else -5) + highlight_score
 
-    # === Score and Progress Update ===
+    # UPDATE SCORE
     session_id = sub.session_id
     if session_id not in USER_SCORES:
         USER_SCORES[session_id] = 0
         USER_PROGRESS[session_id] = 0
     USER_SCORES[session_id] += max(points, 0)
     USER_PROGRESS[session_id] += 1  # Track progress
-
-    # === Leaderboard Update ===
-    current_score = USER_SCORES[session_id]
-    LEADERBOARD[session_id] = max(current_score, LEADERBOARD.get(session_id, 0))
 
     return Score(
         correct=correct,
@@ -382,12 +405,22 @@ def get_progress(session_id: str):
         "total_score": USER_SCORES.get(session_id, 0)
     }
 
-@app.get("/highscore")
-def get_highscore(session_id: str):
-    score = LEADERBOARD.get(session_id, 0)
-    return {"session_id": session_id, "high_score": score}
+@app.post("/finish_quiz")
+def finish_quiz(data: EndGame):
+    session_id = data.session_id
+    score = USER_SCORES.get(session_id, 0)
+    wallet = USER_SESSIONS.get(session_id, {}).get("wallet", None)
 
-# ------------------ Session Management ------------------
+    if wallet and wallet != "guest":
+        chain = "evm" if wallet.startswith("0x") else "solana"
+        tx_result = blockchain_stuff.submit_score(wallet, score, chain)
+
+        if data.errors == 0:
+            blockchain_stuff.award_badge(wallet, "PerfectScore", chain)
+
+    return {"message": "Quiz complete", "score": score}
+
+##################### MANAGEMENT LOGIC #################################
 @app.get("/api/session_info")
 def get_session_info(session_id: str = ""):
     if not session_id or session_id not in USER_SESSIONS:
@@ -401,8 +434,7 @@ def get_session_info(session_id: str = ""):
         greeting = f"Welcome back, {wallet}!"
 
     return {
-        "greeting": greeting,
-        "high_score": LEADERBOARD.get(session_id, 0)
+        "greeting": greeting
     }
 
 

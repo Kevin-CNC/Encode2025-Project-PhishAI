@@ -1,6 +1,7 @@
 let currentEmail = null;
 let questionCount = 0;
 let maxQuestions = 10;
+let errorsCounted = 0;
 
 const sessionId = localStorage.getItem("session_id");
 if(sessionId === null) {
@@ -50,7 +51,19 @@ async function submitAnswer(isPhishingGuess) {
   document.getElementById("quizFeedback").textContent = `${result.feedback} (+${result.points_earned} pts)`;
 
   questionCount += 1;
+  if (result.points_earned < 0){
+    errorsCounted += 1;
+  }
+
   if (questionCount >= maxQuestions) {
+    await fetch("/finish_quiz", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        errors: errorsCounted,
+        session_id: sessionId,
+      })
+    });
     setTimeout(() => window.location.href = "/dashboard", 2000);
   } else {
     setTimeout(() => {
