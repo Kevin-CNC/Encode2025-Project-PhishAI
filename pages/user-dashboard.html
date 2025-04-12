@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html class="bg-slate-100 text-gray-800">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8">
+        <title>Dashboard - PhishAI</title>
+        <script src="https://cdn.tailwindcss.com"></script>
+    </head>
+    <body class="font-sans p-6">
+    <section class="max-w-xl mx-auto text-center space-y-6">
+        <h1 id="greeting-label" class="text-3xl font-bold text-blue-800">Welcome back!</h1>
+        <p id="highscore-label" class="text-xl">Your highest score: <span class="font-semibold text-blue-600">92</span></p>
+
+        <button id="startButton" class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700" >Start New Quiz</button>
+
+        <section id="confirmBox" class="hidden mt-6 bg-white shadow-lg p-6 rounded-xl">
+        <p class="mb-4 text-gray-700">Are you sure you want to start a new quiz?</p>
+        <button id="startQuizButton" class="bg-green-500 text-white px-4 py-2 mr-2 rounded-md">Yes</button>
+        <button id="regretButton" class="bg-gray-400 text-white px-4 py-2 rounded-md">Cancel</button>
+        </section>
+    </section>
+
+    <script src="/static/dashboard.js"></script>
+    </body>
+</html>
