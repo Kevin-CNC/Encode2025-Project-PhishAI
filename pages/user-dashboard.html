@@ -6,8 +6,8 @@
         <title>Dashboard - PhishAI</title>
         <script src="https://cdn.tailwindcss.com"></script>
     </head>
-    <body class="font-sans p-6">
-    <section class="max-w-xl mx-auto space-y-6">
+    <body class="bg-[linear-gradient(90deg,_rgba(129,_199,_227,_1)_0%,_rgba(255,_255,_255,_1)_50%,_rgba(129,_199,_227,_1)_100%)] font-sans p-6">
+    <section class="max-w-xl mx-auto space-y-6 h-screen">
         <header class="bg-white rounded-xl shadow-md p-6">
             <!-- User Profile Section -->
             <section class="flex items-center">
@@ -24,7 +24,11 @@
         </header>
 
         <section class="bg-white rounded-xl shadow-md p-6 text-center">
-            <p id="highscore-label" class="text-xl mb-6">Your highest score: <span class="font-semibold text-blue-600">92</span></p>
+            <p id="highscore-label" class="text-lg mb-6 italic">Here is how everything is gonna work:<br>
+            A random email will be generated, and your duty is very simple: understand if the AI is trying to scam you or not!<br>
+            For each right answer, you gain 10 points, whilst for every wrong one...You lose 5.<br>
+            This challenge is timed, so keep mind of that to have an even higher score!
+            </p>
 
             <button id="startButton" class="bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700">Start New Quiz</button>
 
@@ -35,7 +39,10 @@
             </section>
         </section>
     </section>
-
+    <footer class="p-4 bg-blue-800 text-white text-center w-screen">
+        &copy; 2025 PhishQuiz AI
+    </footer>
+    
     <script src="/static/dashboard.js"></script>
     </body>
 </html>

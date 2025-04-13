@@ -40,6 +40,7 @@ class Score(BaseModel):
 class EndGame(BaseModel):
     session_id: str
     errors: int
+    seconds_taken: int
     
 
 ##################### STATES FOR APPLICATION ############################
@@ -411,14 +412,28 @@ def finish_quiz(data: EndGame):
     score = USER_SCORES.get(session_id, 0)
     wallet = USER_SESSIONS.get(session_id, {}).get("wallet", None)
 
+    awarded = []
+
     if wallet and wallet != "guest":
-        chain = "evm" if wallet.startswith("0x") else "solana"
-        tx_result = blockchain_stuff.submit_score(wallet, score, chain)
+        if wallet.startswith("0x"):
+            chain = "evm"
+        elif wallet.endswith(".sol"):
+            chain = "solana"
+        elif wallet.lower().startswith("stark"):
+            chain = "starknet"
+        else:
+            chain = "evm"  # Default to EVM if unknown
+        
+        if chain == "evm": # Due to time constraints, we can only reserve this feature for EVM wallets
+            awarded = blockchain_stuff.process_quiz_results(wallet, data.errors, score, chain)
 
-        if data.errors == 0:
-            blockchain_stuff.award_badge(wallet, "PerfectScore", chain)
+    return {
+        "message": "Quiz complete",
+        "score": score,
+        "achievements_awarded": awarded,
+        "seconds_taken": data.seconds_taken,
+    }
 
-    return {"message": "Quiz complete", "score": score}
 
 ##################### MANAGEMENT LOGIC #################################
 @app.get("/api/session_info")

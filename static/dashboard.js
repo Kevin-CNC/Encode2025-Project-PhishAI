@@ -12,14 +12,17 @@ document.addEventListener('DOMContentLoaded', function() {
         const walletAddress = localStorage.getItem('wallet_address');
         const walletChain = localStorage.getItem('wallet_chain');
         
-        // Set profile picture if available
         if (profilePicture && document.getElementById('user-profile-picture')) {
             document.getElementById('user-profile-picture').src = profilePicture;
         }
-        
-        // Show wallet address if available (truncated)
+ 
         if (walletAddress && document.getElementById('wallet-address')) {
-            const shortAddress = walletAddress.substring(0, 6) + '...' + walletAddress.substring(walletAddress.length - 4);
+            let shortAddress;
+            if (walletChain === 'Starknet') {
+                shortAddress = walletAddress.substring(0, 6) + '...' + walletAddress.substring(walletAddress.length - 4);
+            } else {
+                shortAddress = walletAddress.substring(0, 6) + '...' + walletAddress.substring(walletAddress.length - 4);
+            }
             document.getElementById('wallet-address').textContent = shortAddress;
         } else if (document.getElementById('wallet-address')) {
             document.getElementById('wallet-address').textContent = 'Guest User';
@@ -31,13 +34,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (walletChain) {
                 chainBadge.textContent = walletChain;
                 
-                // Set badge color based on chain
                 if (walletChain === 'Ethereum') {
                     chainBadge.classList.add('bg-blue-200', 'text-blue-800');
                 } else if (walletChain === 'Polygon') {
                     chainBadge.classList.add('bg-purple-200', 'text-purple-800');
                 } else if (walletChain === 'Solana') {
                     chainBadge.classList.add('bg-green-200', 'text-green-800');
+                } else if (walletChain === 'Starknet') {
+                    chainBadge.classList.add('bg-violet-200', 'text-violet-800');
                 }
             } else {
                 chainBadge.classList.add('hidden');
@@ -53,7 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(DATA => {
         // Update greeting and highscore
         document.getElementById('greeting-label').innerText = `${DATA.greeting}`;
-        document.getElementById('highscore-label').innerText = `Your highest score: ${DATA.high_score}`;
         
         // If server has profile info, update localStorage
         if (DATA.profile_picture && !localStorage.getItem('user_profile_pic')) {

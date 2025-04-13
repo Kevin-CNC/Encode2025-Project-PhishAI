@@ -7,25 +7,27 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="font-sans">
-    <div class="min-h-screen flex flex-col justify-between">
+    <section class="min-h-screen flex flex-col justify-between items-center">
         <!-- Header -->
-        <header class="p-6 bg-blue-800 text-white shadow-md">
-            <h1 class="text-3xl font-bold">PhishAI</h1>
+        <header class="p-6 bg-blue-800 text-white shadow-md w-screen text-center">
+            <h1 class="text-3xl font-bold">PhishAI - AI-Powered Phishing Training</h1>
         </header>
 
         <!-- Main Content -->
         <main class="flex-grow p-6 space-y-10">
             <section>
                 <h2 class="text-2xl font-semibold">About Us</h2>
-                <p>We help users train to detect phishing scams through interactive AI-powered quizzes.</p>
+                <p>We help users train to detect phishing scams through interactive AI-powered quizzes.<br>
+                Do you have what it takes to spot the difference between a scam and a legitimate email? <b>Join us to find out!</b></p>
+                </p>
             </section>
 
             <section>
                 <h2 class="text-2xl font-semibold">Why Use This?</h2>
-                <ul class="list-disc ml-6">
-                    <li>Improve scam detection skills</li>
-                    <li>Gamified experience with real rewards</li>
-                    <li>Blockchain badges for verified achievement</li>
+                <ul class="list-disc ml-6 items-center">
+                    <li>Improve scam detection skills!</li>
+                    <li>Gamified experience with real rewards!</li>
+                    <li>Blockchain badges for verified achievement!</li>
                 </ul>
             </section>
 
@@ -36,7 +38,7 @@
                 <section class="space-y-4 mt-4">
                     <h3 class="text-lg font-medium text-gray-700">Connect with Wallet</h3>
                     
-                    <section class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <section class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
                         <button id="log-in-ethereum" class="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition">
                             <span class="mr-2">Ξ</span>
                             Ethereum
@@ -51,15 +53,20 @@
                             <span class="mr-2">◎</span>
                             Solana
                         </button>
+                        
+                        <button id="log-in-starknet" class="flex items-center justify-center bg-violet-600 hover:bg-violet-700 text-white py-2 px-4 rounded-md transition">
+                            <span class="mr-2">⚡</span>
+                            Starknet
+                        </button>
                     </section>
                     
                     <section class="relative my-4">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-300"></div>
-                        </div>
-                        <div class="relative flex justify-center text-sm">
+                        <section class="absolute inset-0 flex items-center">
+                            <section class="w-full border-t border-gray-300"></section>
+                        </section>
+                        <section class="relative flex justify-center text-sm">
                             <span class="px-2 bg-slate-100 text-gray-500">Or</span>
-                        </div>
+                        </section>
                     </section>
                     
                     <button id="guest-log-in" class="w-full bg-gray-300 hover:bg-gray-400 text-black py-2 px-4 rounded-md transition">
@@ -70,10 +77,10 @@
         </main>
 
         <!-- Footer -->
-        <footer class="p-4 bg-blue-800 text-white text-center">
+        <footer class="p-4 bg-blue-800 text-white text-center w-screen">
             &copy; 2025 PhishQuiz AI
         </footer>
-    </div>
+    </section>
 
     <!-- Scripts -->
     <script src="/static/wallet-login.js"></script>

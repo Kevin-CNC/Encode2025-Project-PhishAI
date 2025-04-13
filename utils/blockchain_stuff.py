@@ -1,95 +1,100 @@
-from web3 import Web3
-from solana.keypair import Keypair
-from solana.publickey import PublicKey
-from solana.transaction import Transaction
-from solana.rpc.api import Client as SolanaClient
-from typing import Dict, Optional, List
-import requests
-import json
-import os
+from typing import Dict, List, Optional
 
-# === Constants & Configuration ===
-EVM_RPC_URL = os.getenv("EVM_RPC_URL", "https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID")
-SOLANA_RPC_URL = os.getenv("SOLANA_RPC_URL", "https://api.mainnet-beta.solana.com")
-EVM_CONTRACT_ADDRESS = os.getenv("EVM_CONTRACT_ADDRESS", "0x123...abc")
-SOLANA_PROGRAM_ID = os.getenv("SOLANA_PROGRAM_ID", "SAMPLE1111111111111111111111111111111111111")
-
-web3 = Web3(Web3.HTTPProvider(EVM_RPC_URL))
-solana = SolanaClient(SOLANA_RPC_URL)
-
-LEADERBOARD_ONCHAIN: List[Dict] = []  # Will be populated from on-chain or cached
-
-
-# === Sample ABI (EVM Contract Must Implement this) ===
-EVM_LEADERBOARD_ABI = [
-    {
-        "inputs": [{"internalType": "address", "name": "player", "type": "address"}, {"internalType": "uint256", "name": "score", "type": "uint256"}],
-        "name": "submitScore",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    },
-    {
-        "inputs": [],
-        "name": "getTopPlayers",
-        "outputs": [{"internalType": "address[]", "name": "", "type": "address[]"}],
-        "stateMutability": "view",
-        "type": "function"
-    }
-]
-
-
-# === Submit Score ===
-def submit_score(wallet_address: str, score: int, chain: str = "evm") -> Optional[str]:
-    if chain == "evm":
-        try:
-            contract = web3.eth.contract(address=EVM_CONTRACT_ADDRESS, abi=EVM_LEADERBOARD_ABI)
-            tx = contract.functions.submitScore(wallet_address, score).build_transaction({
-                'nonce': web3.eth.get_transaction_count(wallet_address),
-                'gas': 250000,
-                'gasPrice': web3.to_wei('10', 'gwei')
-            })
-            # NOTE: You must sign and send the transaction externally via frontend wallet (MetaMask)
-            return "EVM tx built. Must be signed on frontend."
-        except Exception as e:
-            print("EVM Error:", e)
-            return None
-
-    elif chain == "solana":
-        try:
-            player = PublicKey(wallet_address)
-            tx = Transaction()
-            # You'd construct Solana transaction using real program logic here
-            # This is a placeholder
-            tx.add(...)  # smart contract interaction here
-            # Return serialized transaction for frontend to sign
-            return tx.serialize().hex()
-        except Exception as e:
-            print("Solana Error:", e)
-            return None
+class AchievementManager:
+    def __init__(self):
+        self._achievements = {
+            "phishing_intern": {
+                "name": "Phishing Intern",
+                "description": "Successfully identify 10 phishing emails",
+                "requirement": 5
+            },
+            "perfect_run": {
+                "name": "Perfect Run",
+                "description": "Have 0 overall mistakes. Good job!",
+                "requirement": 0
+            },
+            "on_the_right_path": {
+                "name": "On the right path",
+                "description": "Achieve an overall of 100 points. Good job!",
+                "requirement": 100
+            },
+            "speedrunner": {
+                "name": "Speedrunner",
+                "description": "Finish the quiz in under 5 minutes, with an 80%+ accuracy!",
+                "requirement": 0.8
+            }
+        }
+        self._user_achievements = {}
+    
+    def has_achievement(self, wallet_address: str, achievement_id: str) -> bool:
+        user_achievements = self._user_achievements.get(wallet_address, [])
+        return achievement_id in user_achievements
+    
+    def award_achievement(self, wallet_address: str, achievement_id: str) -> bool:
+        if achievement_id not in self._achievements:
+            return False
+        
+        if wallet_address not in self._user_achievements:
+            self._user_achievements[wallet_address] = []
+        
+        if achievement_id not in self._user_achievements[wallet_address]:
+            self._user_achievements[wallet_address].append(achievement_id)
+            return True
+        
+        return False
 
 
-# === Award Badges ===
-def award_badge(wallet_address: str, badge_name: str, chain: str = "evm") -> Optional[str]:
-    # This assumes you’ve deployed a badge contract (EVM ERC-721 or Solana NFT)
-    # Implementation depends on the platform, but conceptually:
-    print(f"Awarding {badge_name} badge to {wallet_address} on {chain}")
-    return "Badge minted or pending signature on frontend."
+# Global instance to maintain state across calls
+achievement_manager = AchievementManager()
 
 
-# === Fetch On-Chain Leaderboard ===
-def get_top_leaderboard(chain: str = "evm") -> List[Dict]:
-    if chain == "evm":
-        try:
-            contract = web3.eth.contract(address=EVM_CONTRACT_ADDRESS, abi=EVM_LEADERBOARD_ABI)
-            players = contract.functions.getTopPlayers().call()
-            return [{"address": p, "score": 0} for p in players]  # Fetch scores via another function if needed
-        except Exception as e:
-            print("EVM Error:", e)
-    elif chain == "solana":
-        try:
-            # You’d normally pull leaderboard data from an off-chain indexer or PDA account
-            return []
-        except Exception as e:
-            print("Solana Error:", e)
-    return []
+
+
+
+def send_onchain_badge(wallet_address: str, achievement_id: str, chain: str) -> bool:
+    """
+    Stub function to simulate sending achievement badge on-chain.
+
+    Args:
+        wallet_address (str): User wallet address.
+        achievement_id (str): The achievement being awarded.
+        chain (str): One of 'evm', 'solana', 'starknet'.
+
+    Returns:
+        bool: True if simulated success.
+    """
+
+    print(f"[Blockchain] Awarding '{achievement_id}' to {wallet_address} on {chain} chain.")
+    # Here you'd integrate with:
+    # - Web3 (EVM): Mint NFT / call smart contract
+    # - Solana: Send transaction or custom token
+    # - Starknet: Use starknet.py to invoke smart contract
+    return True
+
+
+def process_quiz_results(wallet_address: str, errors: int, points: int, chain: str) -> List[str]:
+    awarded = []
+
+    if errors <= achievement_manager._achievements["phishing_intern"]["requirement"]:
+        if achievement_manager.award_achievement(wallet_address, "phishing_intern"):
+            if send_onchain_badge(wallet_address, "phishing_intern", chain):
+                awarded.append("Phishing Intern")
+
+    if errors == achievement_manager._achievements["perfect_run"]["requirement"]:
+        if achievement_manager.award_achievement(wallet_address, "perfect_run"):
+            if send_onchain_badge(wallet_address, "perfect_run", chain):
+                awarded.append("Perfect Run")
+                
+    if points == achievement_manager._achievements["on_the_right_path"]["requirement"]:
+        if achievement_manager.award_achievement(wallet_address, "on_the_right_path"):
+            if send_onchain_badge(wallet_address, "on_the_right_path", chain):
+                awarded.append("On the right path")
+
+    if (15 - errors) / 15 >= achievement_manager._achievements["speedrunner"]["requirement"]:
+        if achievement_manager.award_achievement(wallet_address, "speedrunner"):
+            if send_onchain_badge(wallet_address, "speedrunner", chain):
+                awarded.append("Speedrunner")
+
+    return awarded
+
+
