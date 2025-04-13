@@ -11,6 +11,7 @@ import random as r
 import os
 from dotenv import load_dotenv
 from utils import context_generator, blockchain_stuff
+import uvicorn
 
 load_dotenv() # Load environment variables
 
@@ -466,3 +467,7 @@ async def login(request: Request):
         raise HTTPException(status_code=400, detail="Missing login data")
 
     return JSONResponse({"session_id": session_id, "login_type": USER_SESSIONS[session_id]["type"]})
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=10000, reload=True)
