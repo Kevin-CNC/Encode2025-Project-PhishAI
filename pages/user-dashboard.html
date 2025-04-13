@@ -16,9 +16,13 @@
                          class="w-16 h-16 rounded-full object-cover border-2 border-blue-600">
                     <span id="chain-badge" class="absolute -bottom-1 -right-1 bg-gray-200 text-xs px-2 py-1 rounded-full"></span>
                 </section>
-                <section class="ml-4">
-                    <h1 id="greeting-label" class="text-3xl font-bold text-blue-800">Welcome back!</h1>
-                    <p id="wallet-address" class="text-sm text-gray-500 truncate max-w-xs"></p>
+                <section class="ml-4 max-w-xs overflow-hidden">
+                    <h1 id="greeting-label" class="text-3xl font-bold text-blue-800 whitespace-nowrap overflow-hidden text-ellipsis">
+                        Welcome back!
+                    </h1>
+                    <p id="wallet-address" class="text-sm text-gray-500 truncate">
+                        0x1234567890abcdef1234567890abcdef12345678
+                    </p>
                 </section>
             </section>
         </header>
