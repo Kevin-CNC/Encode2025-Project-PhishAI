@@ -85,7 +85,7 @@ def process_quiz_results(wallet_address: str, errors: int, points: int, chain: s
             if send_onchain_badge(wallet_address, "perfect_run", chain):
                 awarded.append("Perfect Run")
                 
-    if points == achievement_manager._achievements["on_the_right_path"]["requirement"]:
+    if points >= achievement_manager._achievements["on_the_right_path"]["requirement"]:
         if achievement_manager.award_achievement(wallet_address, "on_the_right_path"):
             if send_onchain_badge(wallet_address, "on_the_right_path", chain):
                 awarded.append("On the right path")

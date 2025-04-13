@@ -1,4 +1,4 @@
-# PhishQuiz Backend Updated - Session Redirects, Wallet Login, Tracking, High Score Logic
+# PhishQuiz Backend
 
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
