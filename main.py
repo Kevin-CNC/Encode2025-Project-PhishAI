@@ -282,14 +282,12 @@ Regards,
     try:
         response = requests.post(API_URL, headers=headers, json=payload).json()
         
-        # Handle potential response formats
         if isinstance(response, list) and len(response) > 0 and "generated_text" in response[0]:
             generated_email = response[0]["generated_text"]
         elif isinstance(response, dict) and "generated_text" in response:
             generated_email = response["generated_text"]
         else:
             print(f"Unexpected response format: {response}")
-            # Use fallback template if we can't parse the response
             generated_email = str()
             if fraud:
                 generated_email = phishing_template
