@@ -6,48 +6,55 @@ document.addEventListener('DOMContentLoaded', function() {
         window.location.href = "/";
     }
 
-    // Load user profile information from localStorage
     const loadProfileData = () => {
         const profilePicture = localStorage.getItem('user_profile_pic');
         const walletAddress = localStorage.getItem('wallet_address');
         const walletChain = localStorage.getItem('wallet_chain');
         
-        if (profilePicture && document.getElementById('user-profile-picture')) {
-            document.getElementById('user-profile-picture').src = profilePicture;
+        const profileImg = document.getElementById('user-profile-picture');
+        const logoImg = document.getElementById('logo-image');
+    
+        // Set profile picture if available
+        if (profilePicture && profileImg) {
+            profileImg.src = profilePicture;
         }
- 
+    
+        // Check if user is a guest or has no profile picture
+        const isGuest = !walletAddress || !profilePicture;
+        if (isGuest && logoImg) {
+            logoImg.src = '/static/guestLogo.png';
+        }
+    
+        // Wallet address display
         if (walletAddress && document.getElementById('wallet-address')) {
-            let shortAddress;
-            if (walletChain === 'Starknet') {
-                shortAddress = walletAddress.substring(0, 6) + '...' + walletAddress.substring(walletAddress.length - 4);
-            } else {
-                shortAddress = walletAddress.substring(0, 6) + '...' + walletAddress.substring(walletAddress.length - 4);
-            }
+            const shortAddress = walletAddress.substring(0, 6) + '...' + walletAddress.substring(walletAddress.length - 4);
             document.getElementById('wallet-address').textContent = shortAddress;
         } else if (document.getElementById('wallet-address')) {
             document.getElementById('wallet-address').textContent = 'Guest User';
         }
-        
-        // Show blockchain badge if applicable
+    
+        // Blockchain badge
         const chainBadge = document.getElementById('chain-badge');
         if (chainBadge) {
             if (walletChain) {
                 chainBadge.textContent = walletChain;
-                
-                if (walletChain === 'Ethereum') {
-                    chainBadge.classList.add('bg-blue-200', 'text-blue-800');
-                } else if (walletChain === 'Polygon') {
-                    chainBadge.classList.add('bg-purple-200', 'text-purple-800');
-                } else if (walletChain === 'Solana') {
-                    chainBadge.classList.add('bg-green-200', 'text-green-800');
-                } else if (walletChain === 'Starknet') {
-                    chainBadge.classList.add('bg-violet-200', 'text-violet-800');
+    
+                const badgeColors = {
+                    Ethereum: ['bg-blue-200', 'text-blue-800'],
+                    Polygon: ['bg-purple-200', 'text-purple-800'],
+                    Solana: ['bg-green-200', 'text-green-800'],
+                    Starknet: ['bg-violet-200', 'text-violet-800']
+                };
+    
+                if (badgeColors[walletChain]) {
+                    chainBadge.classList.add(...badgeColors[walletChain]);
                 }
             } else {
                 chainBadge.classList.add('hidden');
             }
         }
     };
+    
 
     // Fetch session info from server
     fetch(`/api/session_info?session_id=${clientSessionId}`, {

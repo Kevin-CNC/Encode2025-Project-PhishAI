@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pydantic
+requests
+web3            
+solana       
+starknet.py     
+python-dotenv    
